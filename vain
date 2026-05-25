@@ -1,0 +1,580 @@
+ <!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>English Test</title>
+
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #111827;
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 800px;
+        text-align: center;
+    }
+
+    .question {
+        font-size: 34px;
+        font-weight: bold;
+        margin-bottom: 35px;
+        background: #1f2937;
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    }
+
+    .answers {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    button {
+        padding: 22px;
+        font-size: 18px;
+        border: none;
+        border-radius: 15px;
+        cursor: pointer;
+        background: #374151;
+        color: white;
+        transition: 0.2s;
+    }
+
+    button:hover {
+        background: #4b5563;
+        transform: scale(1.02);
+    }
+
+    button.correct {
+        background: #16a34a !important;
+    }
+
+    button.wrong {
+        background: #dc2626 !important;
+    }
+
+    .score {
+        margin-top: 25px;
+        font-size: 22px;
+        opacity: 0.9;
+    }
+
+    @media(max-width: 700px) {
+
+        .answers {
+            grid-template-columns: 1fr;
+        }
+
+        .question {
+            font-size: 26px;
+        }
+
+        button {
+            font-size: 16px;
+        }
+    }
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="question" id="question">
+        Loading...
+    </div>
+
+    <div class="answers" id="answers"></div>
+
+    <div class="score">
+        ✅ Correct:
+        <span id="correct">0</span>
+
+        |
+
+        ❌ Wrong:
+        <span id="wrong">0</span>
+    </div>
+
+</div>
+
+<script>
+
+const words = [
+
+
+{ en: "canteen", pl: "stołówka" },
+{ en: "classroom", pl: "klasa, sala lekcyjna" },
+{ en: "computer room", pl: "pracownia komputerowa" },
+{ en: "corridor", pl: "korytarz" },
+{ en: "gym", pl: "sala gimnastyczna" },
+{ en: "head teacher’s office", pl: "gabinet dyrektora" },
+{ en: "laboratory / lab", pl: "laboratorium" },
+{ en: "library", pl: "biblioteka" },
+{ en: "office", pl: "sekretariat" },
+{ en: "playground", pl: "boisko szkolne, plac zabaw" },
+{ en: "playing field", pl: "boisko" },
+{ en: "teachers’ room", pl: "pokój nauczycielski" },
+
+{ en: "Art", pl: "plastyka" },
+{ en: "Biology", pl: "biologia" },
+{ en: "Chemistry", pl: "chemia" },
+{ en: "Civics / Citizenship", pl: "wiedza o społeczeństwie" },
+{ en: "English Language and Literature", pl: "język angielski" },
+{ en: "foreign languages", pl: "języki obce" },
+{ en: "Geography", pl: "geografia" },
+{ en: "History", pl: "historia" },
+{ en: "humanities", pl: "przedmioty humanistyczne" },
+{ en: "ICT / IT", pl: "informatyka" },
+{ en: "Mathematics / Maths", pl: "matematyka" },
+{ en: "Music", pl: "muzyka" },
+{ en: "Physical Education (PE)", pl: "WF" },
+{ en: "Physics", pl: "fizyka" },
+{ en: "Polish Language and Literature", pl: "język polski" },
+{ en: "Religious Education (RE)", pl: "religia" },
+{ en: "Science", pl: "nauki przyrodnicze" },
+{ en: "science subjects", pl: "przedmioty ścisłe" },
+
+{ en: "attend school", pl: "uczęszczać do szkoły" },
+{ en: "course / classes", pl: "kurs / zajęcia" },
+{ en: "collaborate with sb", pl: "współpracować z kimś" },
+{ en: "concentrate", pl: "koncentrować się" },
+{ en: "concentration", pl: "koncentracja" },
+{ en: "copy homework from sb", pl: "przepisywać pracę domową" },
+{ en: "discuss set books", pl: "omawiać lektury" },
+{ en: "do a project", pl: "robić projekt" },
+{ en: "do a task", pl: "wykonywać zadanie" },
+{ en: "do an activity / exercise", pl: "robić ćwiczenie" },
+{ en: "do an experiment", pl: "przeprowadzać eksperyment" },
+{ en: "do homework", pl: "odrabiać pracę domową" },
+{ en: "do well", pl: "dobrze sobie radzić" },
+{ en: "do your best", pl: "bardzo się starać" },
+{ en: "expel sb from school", pl: "wydalić kogoś ze szkoły" },
+{ en: "find it impossible to do sth", pl: "nie być w stanie czegoś zrobić" },
+{ en: "focus on sth", pl: "skupiać się na czymś" },
+{ en: "go to school", pl: "chodzić do szkoły" },
+{ en: "hand in homework", pl: "oddawać pracę domową" },
+{ en: "have a break", pl: "mieć przerwę" },
+{ en: "have lessons", pl: "mieć lekcje" },
+{ en: "knowledge", pl: "wiedza" },
+{ en: "learn about sth", pl: "dowiadywać się o czymś" },
+{ en: "learn by heart", pl: "uczyć się na pamięć" },
+{ en: "learn new skills", pl: "zdobywać nowe umiejętności" },
+{ en: "learn sth", pl: "uczyć się czegoś" },
+{ en: "make a good impression", pl: "zrobić dobre wrażenie" },
+{ en: "make a presentation", pl: "zrobić prezentację" },
+{ en: "make mistakes", pl: "robić błędy" },
+{ en: "make progress", pl: "robić postępy" },
+{ en: "miss lessons", pl: "opuszczać lekcje" },
+{ en: "motivate", pl: "motywować" },
+{ en: "notes", pl: "notatki" },
+{ en: "take notes", pl: "robić notatki" },
+{ en: "participate in sth", pl: "brać udział w czymś" },
+{ en: "pay attention", pl: "uważać" },
+{ en: "read maps", pl: "czytać mapy" },
+{ en: "report findings", pl: "przedstawiać wyniki" },
+{ en: "revision", pl: "powtórka" },
+{ en: "skip classes", pl: "chodzić na wagary" },
+{ en: "solve a problem", pl: "rozwiązywać problem" },
+{ en: "study hard", pl: "uczyć się pilnie" },
+{ en: "take lessons", pl: "chodzić na lekcje" },
+{ en: "teach a subject", pl: "nauczać przedmiotu" },
+{ en: "turn up late", pl: "spóźniać się" },
+{ en: "wipe the board", pl: "ścierać tablicę" },
+{ en: "work in groups", pl: "pracować w grupach" },
+{ en: "write an essay", pl: "pisać wypracowanie" },
+
+{ en: "be off school", pl: "być nieobecnym w szkole" },
+{ en: "catch up on schoolwork", pl: "nadrobić materiał" },
+{ en: "cause disruption", pl: "zakłócać porządek" },
+{ en: "conduct an experiment", pl: "przeprowadzać eksperyment" },
+{ en: "excel at sth", pl: "celować w czymś" },
+{ en: "expulsion", pl: "wydalenie ze szkoły" },
+{ en: "fall behind with schoolwork", pl: "mieć zaległości" },
+{ en: "read Greek myths", pl: "czytać mity greckie" },
+{ en: "set homework", pl: "zadawać pracę domową" },
+{ en: "show up late", pl: "spóźnić się" },
+
+{ en: "achieve your goals", pl: "osiągać cele" },
+{ en: "advance", pl: "rozwijać się" },
+{ en: "advanced", pl: "zaawansowany" },
+{ en: "autonomous study", pl: "samodzielna nauka" },
+{ en: "complete a course", pl: "ukończyć kurs" },
+{ en: "develop", pl: "rozwijać" },
+{ en: "develop a new skill", pl: "rozwijać nową umiejętność" },
+{ en: "development", pl: "rozwój" },
+{ en: "do scientific research", pl: "prowadzić badania naukowe" },
+{ en: "take a course", pl: "chodzić na kurs" },
+{ en: "gain new qualifications", pl: "zdobyć nowe kwalifikacje" },
+{ en: "improve", pl: "poprawić" },
+{ en: "improve your study skills", pl: "poprawić umiejętności uczenia się" },
+{ en: "improvement", pl: "poprawa" },
+{ en: "learning objective", pl: "cel nauki" },
+{ en: "motivation", pl: "motywacja" },
+{ en: "lack in", pl: "mieć braki w" },
+{ en: "motivator", pl: "czynnik motywujący" },
+{ en: "act as a motivator", pl: "działać jako czynnik motywujący" },
+{ en: "online learning", pl: "nauka zdalna" },
+{ en: "personal development", pl: "rozwój osobisty" },
+{ en: "professional life", pl: "życie zawodowe" },
+{ en: "self-motivated learner", pl: "uczeń z motywacją wewnętrzną" },
+{ en: "set yourself a goal", pl: "wyznaczyć sobie cel" },
+{ en: "take an active role", pl: "brać aktywny udział" },
+{ en: "think flexibly", pl: "myśleć elastycznie" },
+{ en: "training", pl: "szkolenie" },
+
+{ en: "set clear targets", pl: "wyznaczać jasne cele" },
+{ en: "sign up for sth", pl: "zapisać się na coś" },
+{ en: "stick to your guns", pl: "obstawać przy swoim" },
+
+{ en: "blackboard", pl: "tablica" },
+{ en: "board eraser", pl: "gąbka do tablicy" },
+{ en: "calculator", pl: "kalkulator" },
+{ en: "chalk", pl: "kreda" },
+{ en: "coloured pencil", pl: "kredka" },
+{ en: "copybook", pl: "zeszyt" },
+{ en: "correction fluid", pl: "korektor" },
+{ en: "coursebook", pl: "podręcznik" },
+{ en: "crayons", pl: "kredki świecowe" },
+{ en: "desk", pl: "ławka" },
+{ en: "dictionary", pl: "słownik" },
+{ en: "exercise book", pl: "zeszyt ćwiczeń" },
+{ en: "file", pl: "teczka / plik" },
+{ en: "folder", pl: "teczka" },
+{ en: "highlighter", pl: "zakreślacz" },
+{ en: "interactive whiteboard", pl: "tablica interaktywna" },
+{ en: "locker", pl: "szafka" },
+{ en: "notebook", pl: "zeszyt" },
+{ en: "PE kit", pl: "strój sportowy" },
+{ en: "pen", pl: "długopis" },
+{ en: "pencil", pl: "ołówek" },
+{ en: "pencil case", pl: "piórnik" },
+{ en: "pencil sharpener", pl: "temperówka" },
+{ en: "ring binder", pl: "segregator" },
+{ en: "rubber", pl: "gumka" },
+{ en: "ruler", pl: "linijka" },
+{ en: "school bag", pl: "tornister" },
+{ en: "textbook", pl: "podręcznik" },
+{ en: "whiteboard", pl: "tablica suchościeralna" },
+{ en: "whiteboard marker", pl: "marker do tablicy" },
+{ en: "workbook", pl: "zeszyt ćwiczeń" },
+
+{ en: "academic results", pl: "wyniki w nauce" },
+{ en: "academic standards", pl: "standardy nauczania" },
+{ en: "cheat", pl: "ściągać" },
+{ en: "credit", pl: "zaliczenie" },
+{ en: "exam paper", pl: "arkusz egzaminacyjny" },
+{ en: "exam results", pl: "wyniki egzaminu" },
+{ en: "examination / exam", pl: "egzamin" },
+{ en: "examine", pl: "przeprowadzać egzamin" },
+{ en: "grade", pl: "ocena" },
+{ en: "mock exam paper", pl: "arkusz próbnego egzaminu" },
+{ en: "school-leaving exam", pl: "egzamin końcowy" },
+{ en: "score", pl: "wynik" },
+{ en: "university entrance exam", pl: "egzamin wstępny" },
+{ en: "written exam", pl: "egzamin pisemny" },
+
+{ en: "above average", pl: "powyżej średniej" },
+{ en: "assess", pl: "oceniać" },
+{ en: "achievement", pl: "osiągnięcie" },
+{ en: "evaluate", pl: "ocenić" },
+{ en: "mock exam", pl: "egzamin próbny" },
+{ en: "multiple-choice test", pl: "test wyboru" },
+{ en: "resit", pl: "poprawka" },
+{ en: "term paper", pl: "praca semestralna" },
+{ en: "worksheet", pl: "arkusz pracy" },
+
+{ en: "cheat in an exam", pl: "ściągać na egzaminie" },
+{ en: "take an exam", pl: "przystępować do egzaminu" },
+{ en: "do badly in an exam", pl: "źle poradzić sobie na egzaminie" },
+{ en: "fail an exam", pl: "oblać egzamin" },
+{ en: "score marks", pl: "zdobyć punkty" },
+{ en: "get good marks", pl: "dostać dobre oceny" },
+{ en: "mark an exam paper", pl: "oceniać pracę egzaminacyjną" },
+{ en: "pass an exam", pl: "zdać egzamin" },
+{ en: "prepare for an exam", pl: "przygotować się do egzaminu" },
+{ en: "retake an exam", pl: "poprawiać egzamin" },
+{ en: "revise for an exam", pl: "powtarzać do egzaminu" },
+{ en: "study for an exam", pl: "uczyć się do egzaminu" },
+
+{ en: "absence", pl: "nieobecność" },
+{ en: "attendance", pl: "obecność" },
+{ en: "blended learning", pl: "nauczanie hybrydowe" },
+{ en: "break", pl: "przerwa" },
+{ en: "brunch", pl: "przerwa na lunch" },
+{ en: "bullying", pl: "prześladowanie" },
+{ en: "class", pl: "lekcja" },
+{ en: "register", pl: "dziennik lekcyjny" },
+{ en: "electronic register", pl: "dziennik elektroniczny" },
+{ en: "take the register", pl: "sprawdzać obecność" },
+{ en: "compulsory", pl: "obowiązkowy" },
+{ en: "deadline", pl: "termin oddania pracy" },
+{ en: "dyslexia", pl: "dysleksja" },
+{ en: "dyslexic", pl: "dyslektyczny" },
+{ en: "exchange student", pl: "uczeń z wymiany" },
+{ en: "group work", pl: "praca w grupie" },
+{ en: "holiday", pl: "wakacje" },
+{ en: "have difficulties", pl: "mieć trudności" },
+{ en: "lesson", pl: "lekcja" },
+{ en: "newcomer", pl: "nowy uczeń" },
+{ en: "open day", pl: "dzień otwarty" },
+{ en: "optional", pl: "nieobowiązkowy" },
+{ en: "parent-teacher conference", pl: "wywiadówka" },
+{ en: "personalised education", pl: "nauczanie indywidualne" },
+{ en: "school trip", pl: "wycieczka szkolna" },
+{ en: "school uniform", pl: "mundurek szkolny" },
+{ en: "school year", pl: "rok szkolny" },
+{ en: "set books", pl: "lektury szkolne" },
+{ en: "strict rules", pl: "surowe zasady" },
+{ en: "student exchange programme", pl: "wymiana uczniowska" },
+{ en: "study break", pl: "przerwa w nauce" },
+{ en: "term", pl: "semestr" },
+{ en: "timetable", pl: "plan lekcji" },
+{ en: "troublemaker", pl: "osoba sprawiająca problemy" },
+{ en: "workshop", pl: "warsztaty" },
+{ en: "written work", pl: "praca pisemna" },     
+
+{ en: "abilities", pl: "zdolności" },
+{ en: "announce sth in assembly", pl: "ogłosić coś na apelu" },
+{ en: "assignment", pl: "zadanie" },
+{ en: "submit an assignment", pl: "oddać pracę" },
+{ en: "be down", pl: "być przygnębionym" },
+{ en: "dread sth", pl: "obawiać się czegoś" },
+{ en: "drop out of school", pl: "rzucić szkołę" },
+{ en: "end up doing sth", pl: "ostatecznie coś zrobić" },
+{ en: "hang around", pl: "kręcić się" },
+{ en: "homeschooling", pl: "nauczanie domowe" },
+{ en: "look back on sth", pl: "wspominać coś" },
+{ en: "project work", pl: "praca projektowa" },
+{ en: "prom", pl: "bal szkolny" },
+{ en: "restrict access to a room", pl: "ograniczyć dostęp do pokoju" },
+{ en: "school report", pl: "świadectwo szkolne" },
+{ en: "source texts", pl: "teksty źródłowe" },
+
+{ en: "classmate", pl: "kolega z klasy" },
+{ en: "deputy head", pl: "wicedyrektor" },
+{ en: "examiner", pl: "egzaminator" },
+{ en: "form teacher", pl: "wychowawca" },
+{ en: "head teacher", pl: "dyrektor szkoły" },
+{ en: "instructor", pl: "instruktor" },
+{ en: "lecturer", pl: "wykładowca" },
+{ en: "professor", pl: "profesor" },
+{ en: "pupil", pl: "uczeń" },
+{ en: "schoolmate", pl: "kolega ze szkoły" },
+{ en: "secretary", pl: "sekretarka" },
+{ en: "student", pl: "student" },
+{ en: "teacher", pl: "nauczyciel" },
+{ en: "teaching staff", pl: "grono pedagogiczne" },
+{ en: "tutor", pl: "korepetytor" },
+{ en: "university student", pl: "student uniwersytetu" },
+
+{ en: "absent", pl: "nieobecny" },
+{ en: "active", pl: "aktywny" },
+{ en: "cooperative", pl: "chętny do współpracy" },
+{ en: "demanding", pl: "wymagający" },
+{ en: "fair / unfair", pl: "sprawiedliwy / niesprawiedliwy" },
+{ en: "gifted", pl: "utalentowany" },
+{ en: "hard-working", pl: "pracowity" },
+{ en: "imaginative", pl: "kreatywny" },
+{ en: "motivated", pl: "zmotywowany" },
+{ en: "motivating", pl: "motywujący" },
+{ en: "passive", pl: "bierny" },
+{ en: "present", pl: "obecny" },
+{ en: "professional", pl: "profesjonalny" },
+{ en: "punctual", pl: "punktualny" },
+{ en: "strict", pl: "surowy" },
+{ en: "weak", pl: "słaby" },
+
+{ en: "club", pl: "kółko zainteresowań" },
+{ en: "book club", pl: "klub książki" },
+{ en: "chess", pl: "koło szachowe" },
+{ en: "drama", pl: "kółko teatralne" },
+{ en: "sports club", pl: "klub sportowy" },
+{ en: "competition", pl: "olimpiada przedmiotowa" },
+{ en: "sports day", pl: "dzień sportu" },
+{ en: "school choir", pl: "chór szkolny" },
+
+{ en: "academy", pl: "akademia" },
+{ en: "college", pl: "kolegium / szkoła wyższa" },
+{ en: "co-educational school", pl: "szkoła koedukacyjna" },
+{ en: "comprehensive school", pl: "szkoła państwowa" },
+{ en: "elementary school", pl: "szkoła podstawowa" },
+{ en: "fee-paying school", pl: "szkoła płatna" },
+{ en: "high school", pl: "szkoła średnia" },
+{ en: "independent school", pl: "szkoła niepubliczna" },
+{ en: "junior high school", pl: "gimnazjum" },
+{ en: "kindergarten", pl: "przedszkole" },
+{ en: "middle school", pl: "gimnazjum" },
+{ en: "nursery school", pl: "przedszkole" },
+{ en: "primary school", pl: "szkoła podstawowa" },
+{ en: "private school", pl: "szkoła prywatna" },
+{ en: "public school (AmE)", pl: "szkoła państwowa" },
+{ en: "public school (BrE)", pl: "szkoła prywatna" },
+{ en: "secondary school", pl: "szkoła średnia" },
+{ en: "single-sex school", pl: "szkoła dla jednej płci" },
+{ en: "state school", pl: "szkoła państwowa" },
+{ en: "university / uni", pl: "uniwersytet" },
+
+{ en: "admission requirements", pl: "warunki przyjęcia" },
+{ en: "boarding school", pl: "szkoła z internatem" },
+{ en: "campus", pl: "kampus" },
+{ en: "certificate", pl: "certyfikat" },
+{ en: "cram", pl: "wkuwać" },
+{ en: "curriculum", pl: "program nauczania" },
+{ en: "dormitory", pl: "akademik / internat" },
+{ en: "enrol on a course", pl: "zapisać się na kurs" },
+{ en: "faculty", pl: "wydział" },
+{ en: "follow the curriculum", pl: "realizować program" },
+{ en: "hall of residence", pl: "akademik" },
+{ en: "obligatory", pl: "obowiązkowy" },
+{ en: "seminar", pl: "seminarium" },
+{ en: "tuition fees", pl: "czesne" },
+{ en: "tuition", pl: "korepetycje" },
+{ en: "tutorial", pl: "konsultacje" },
+{ en: "vocational school", pl: "szkoła zawodowa" },
+
+{ en: "A levels", pl: "egzamin końcowy po szkole średniej" },
+{ en: "BA", pl: "licencjat humanistyczny" },
+{ en: "BSc", pl: "licencjat nauk ścisłych" },
+{ en: "graduate", pl: "absolwent" },
+{ en: "MA", pl: "magister humanistyczny" },
+{ en: "MSc", pl: "magister nauk ścisłych" },
+{ en: "PhD", pl: "doktor" },
+{ en: "thesis", pl: "praca dyplomowa" },
+
+{ en: "undergraduate student", pl: "student przed licencjatem" },
+{ en: "fresh out of uni", pl: "świeżo po studiach" },
+{ en: "get a degree", pl: "zdobyć dyplom" },
+{ en: "graduate from university", pl: "ukończyć studia" },
+{ en: "have a degree in", pl: "mieć dyplom z" },
+{ en: "apply to university", pl: "ubiegać się o przyjęcie na studia" },
+{ en: "change a degree course", pl: "zmienić kierunek studiów" },
+{ en: "get a scholarship", pl: "dostać stypendium" },
+{ en: "get into university", pl: "dostać się na studia" },
+{ en: "take a gap year", pl: "zrobić gap year" }
+
+// ДОБАВЬ СЮДА ОСТАЛЬНЫЕ СЛОВА
+
+];
+
+let correct = 0;
+let wrong = 0;
+
+// список слов без повторений
+let remainingWords = [];
+
+const questionEl = document.getElementById("question");
+const answersEl = document.getElementById("answers");
+
+function shuffle(array) {
+
+    return array.sort(() => Math.random() - 0.5);
+}
+
+function getRandomWordWithoutRepeats() {
+
+    // если все слова закончились
+    if (remainingWords.length === 0) {
+
+        // создаём новый перемешанный список
+        remainingWords = shuffle([...words]);
+    }
+
+    // берём последнее слово
+    return remainingWords.pop();
+}
+
+function nextQuestion() {
+
+    answersEl.innerHTML = "";
+
+    // берём слово без повторов
+    const current = getRandomWordWithoutRepeats();
+
+    questionEl.textContent = current.pl;
+
+    let options = [current];
+
+    while (options.length < 4) {
+
+        const randomWord =
+            words[Math.floor(Math.random() * words.length)];
+
+        if (!options.includes(randomWord)) {
+
+            options.push(randomWord);
+        }
+    }
+
+    options = shuffle(options);
+
+    options.forEach(option => {
+
+        const button = document.createElement("button");
+
+        button.textContent = option.en;
+
+        button.onclick = () => {
+
+            const buttons =
+                document.querySelectorAll("button");
+
+            buttons.forEach(btn => btn.disabled = true);
+
+            if (option.en === current.en) {
+
+                button.classList.add("correct");
+
+                correct++;
+
+                document.getElementById("correct").textContent =
+                    correct;
+
+            } else {
+
+                button.classList.add("wrong");
+
+                wrong++;
+
+                document.getElementById("wrong").textContent =
+                    wrong;
+
+                buttons.forEach(btn => {
+
+                    if (btn.textContent === current.en) {
+
+                        btn.classList.add("correct");
+                    }
+                });
+            }
+
+            setTimeout(() => {
+
+                nextQuestion();
+
+            }, 1000);
+        };
+
+        answersEl.appendChild(button);
+    });
+}
+
+nextQuestion();
+
+</script>
+
+</body>
+</html>
